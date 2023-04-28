@@ -1,12 +1,16 @@
 import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import noteRoutes from "./routes/notes";
+import userRoutes from "./routes/user";
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import cors from 'cors';
+import session from "express-session";
+import validateEnv from "./util/validateEnv";
+import MongoStore from "connect-mongo";
 const app = express();
 
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = ['http://localhost:3001'];
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins
@@ -20,7 +24,22 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
+app.use(session({
+  secret: validateEnv.JWT_KEY,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 60 * 60 * 10000
+  },
+  rolling: true,
+  store: MongoStore.create({
+    mongoUrl: validateEnv.MONGO_CONNECTION_STRING,
+
+  })
+}))
+
 app.use("/api/notes", noteRoutes);
+app.use("/api/user", userRoutes);
 
 app.use((req, res, next) => {
   next(
@@ -38,7 +57,7 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     statusCode = error.status;
     errorMessage = error.message;
   }
-  //   if (error instanceof Error) errorMessage = error.message;
+  // if (error instanceof Error) errorMessage = error.message;
   res.status(statusCode).json({ error: errorMessage });
 });
 

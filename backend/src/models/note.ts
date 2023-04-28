@@ -2,6 +2,10 @@ import { InferSchemaType, Schema, model } from "mongoose";
 
 const noteSchema = new Schema(
   {
+    userId: {
+      type: Object,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
