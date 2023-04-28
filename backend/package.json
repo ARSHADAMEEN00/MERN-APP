@@ -7,7 +7,7 @@
     "start": "nodemon src/server.ts",
     "eslint": "npx eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build"
+    "build": "npm i && tsc --build"
   },
   "keywords": [],
   "author": "",
