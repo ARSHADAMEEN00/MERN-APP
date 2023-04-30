@@ -1,4 +1,11 @@
-import { InferSchemaType, Schema, model } from "mongoose";
+import { Document, InferSchemaType, Schema, model } from "mongoose";
+
+// export type UserDocument = Document & {
+//   username: string;
+//   email: string;
+//   password: string;
+//   googleId: string;
+// };
 
 const userSchema = new Schema(
   {
@@ -12,9 +19,11 @@ const userSchema = new Schema(
     },
     username: {
       type: String
-    }
-  },
-  { timestamps: true }
+    },
+    googleId: {
+      type: String
+    },
+  }
 );
 
 type User = InferSchemaType<typeof userSchema>;

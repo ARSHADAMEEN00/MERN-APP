@@ -1,16 +1,13 @@
 import express from "express";
 import * as UserController from "../controllers/user";
+import { requiresAuth } from "../middleware/auth";
 
 const router = express.Router();
 
-router.get("/", UserController.getAuthenticatedUser);
-router.post("/register", UserController.signUp);
+router.get("/", requiresAuth, UserController.getAuthenticatedUser);
+router.post("/signup", UserController.signUp);
 router.post("/login", UserController.login);
 router.post("/logout", UserController.logout);
 
-// router.get("/:noteId", NotesController.getNote);
-// router.post("/", NotesController.createNote);
-// router.patch("/:noteId", NotesController.updateNote);
-// router.delete("/:noteId", NotesController.deleteNote);
 
 export default router;

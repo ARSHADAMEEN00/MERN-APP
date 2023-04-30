@@ -2,18 +2,38 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import noteRoutes from "./routes/notes";
 import userRoutes from "./routes/user";
+// import authRoutes from "./routes/auth";
+// import profileRoutes from "./routes/profile";
+
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import cors from 'cors';
 import session from "express-session";
-import validateEnv from "./util/validateEnv";
+import env from "./util/validateEnv";
 import MongoStore from "connect-mongo";
+import { requiresAuth } from "./middleware/auth";
+// import passport from "passport"
+
 const app = express();
 
-const allowedOrigins = ['http://localhost:3001'];
+app.use(session({
+  secret: env.JWT_KEY,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 60 * 1000,//one day
+  },
+  rolling: true,
+  store: MongoStore.create({
+    mongoUrl: env.MONGO_CONNECTION_STRING,
+  })
+}))
+
+const allowedOrigins = ['http://localhost:3001', 'https://dailynotes-netlify.com'];
 
 const options: cors.CorsOptions = {
-  origin: allowedOrigins
+  origin: allowedOrigins,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 };
 
 app.use(cors(options));
@@ -24,22 +44,13 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
-app.use(session({
-  secret: validateEnv.JWT_KEY,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 60 * 60 * 10000
-  },
-  rolling: true,
-  store: MongoStore.create({
-    mongoUrl: validateEnv.MONGO_CONNECTION_STRING,
+// app.use(passport.initialize())
+// app.use(passport.session())
 
-  })
-}))
-
-app.use("/api/notes", noteRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/notes", requiresAuth, noteRoutes);
+// app.use("/api/auth", authRoutes);
+// app.use("/api/profile", profileRoutes);
 
 app.use((req, res, next) => {
   next(

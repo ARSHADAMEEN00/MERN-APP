@@ -5,14 +5,8 @@ import bcrypt from "bcrypt"
 
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-    const authenticatedUserId = req.session.userId;
-
     try {
-        if (!authenticatedUserId) {
-            throw createHttpError(401, "User not authenticated");
-        }
-
-        const user = await UserModel.findById(authenticatedUserId).select("-password").exec();
+        const user = await UserModel.findById(req.session.userId).select("-password").exec();
         res.status(200).json(user)
 
     } catch (error) {
@@ -56,7 +50,7 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
         })
 
         req.session.userId = newUser?._id
-
+        res.setHeader('set-cookie', `session_id=${req.session.id}; HttpOnly; SameSite=Strict`);
         res.status(201).json(newUser)
 
     } catch (error) {
@@ -92,12 +86,12 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
         }
 
         req.session.userId = user?._id
-        res.status(200).json(user)
+
+        res.status(201).json(user)
 
     } catch (error) {
         next(error)
     }
-
 }
 
 export const logout: RequestHandler = async (req, res, next) => {
