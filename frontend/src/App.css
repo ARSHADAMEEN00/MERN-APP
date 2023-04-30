@@ -1,0 +1,5 @@
+@media screen and (max-width: 768px) {
+  .sm\:p-0 {
+    padding: 0 !important;
+  }
+}
