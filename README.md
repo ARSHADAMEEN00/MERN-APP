@@ -4,8 +4,8 @@ backend deployed in render.com
 frontend deployed in netlify.com
 
 
-#frontend
-React
+#frontend <br />
+ReactJs <br />
     mui : (Material UI SAS) for UI and theme <br />
     axios : for the api call <br />
     typescript : code base <br />
@@ -17,7 +17,7 @@ React
 
 
 #backend
-MongoDB, Express,  Node
+MongoDB, Express,  NodeJs
 
     "dotenv": "^16.0.3", - for access env variables
     "envalid": "^7.3.1", - check the env variables type 
