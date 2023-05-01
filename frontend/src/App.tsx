@@ -28,7 +28,7 @@ function App() {
       }
     }
     fetchLoggedInUser()
-  }, [])
+  }, [setUser])
 
 
   return (
@@ -48,7 +48,6 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
           </Route>
-
         </Routes>
       </Container>
     </div >

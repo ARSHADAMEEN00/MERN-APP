@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,7 +11,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Context, ContextType } from 'util/provider';
+// import { Context, ContextType } from 'util/provider';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as Api from "network/api_helper"
@@ -40,7 +39,7 @@ type Inputs = {
 
 export default function Register() {
     const navigate = useNavigate()
-    const { setUser, user } = React.useContext(Context) as ContextType;
+    // const { user, } = React.useContext(Context) as ContextType;
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Inputs>();
 
@@ -48,7 +47,7 @@ export default function Register() {
         e?.preventDefault()
 
         try {
-            const user = await Api.signUp(credentials)
+            await Api.signUp(credentials)
             alert('success');
             navigate('/login')
         } catch (error) {
