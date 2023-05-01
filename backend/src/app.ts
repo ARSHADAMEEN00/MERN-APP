@@ -2,8 +2,6 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import noteRoutes from "./routes/notes";
 import userRoutes from "./routes/user";
-// import authRoutes from "./routes/auth";
-// import profileRoutes from "./routes/profile";
 
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
@@ -12,7 +10,6 @@ import session from "express-session";
 import env from "./util/validateEnv";
 import MongoStore from "connect-mongo";
 import { requiresAuth } from "./middleware/auth";
-// import passport from "passport"
 
 const app = express();
 
@@ -44,13 +41,8 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
-// app.use(passport.initialize())
-// app.use(passport.session())
-
 app.use("/api/users", userRoutes);
 app.use("/api/notes", requiresAuth, noteRoutes);
-// app.use("/api/auth", authRoutes);
-// app.use("/api/profile", profileRoutes);
 
 app.use((req, res, next) => {
   next(
