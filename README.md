@@ -1,5 +1,7 @@
 # MERN-APP (DAILYNOTES)
 
+preview : <a href="https://osperb-notes.netlify.app/login">Create Your Daily Notes 😍</a> 
+
 backend deployed in render.com
 frontend deployed in netlify.com
 
