@@ -39,9 +39,9 @@ type Inputs = {
 
 export default function SignIn() {
     const navigate = useNavigate()
-    const { setUser, user } = React.useContext(Context) as ContextType;
+    const { setUser, } = React.useContext(Context) as ContextType;
 
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Inputs>();
+    const { register, handleSubmit, formState: { isSubmitting } } = useForm<Inputs>();
 
     const onSubmit: SubmitHandler<Inputs> = async (credentials, e) => {
         e?.preventDefault()

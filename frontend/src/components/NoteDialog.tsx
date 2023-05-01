@@ -33,7 +33,7 @@ const NoteDialog = ({ noteToEdit, open, handleClose }: props) => {
     const { addToNote, updateNote } = React.useContext(Context) as ContextType;
 
     const { register, handleSubmit, reset, formState: {
-        errors,
+        // errors,
         isSubmitting,
     } } = useForm<Inputs>({
         defaultValues: {
