@@ -5,6 +5,4 @@ export default cleanEnv(process.env, {
   PORT: port(),
   NODE_ENV: str(),
   JWT_KEY: str(),
-  GOOGLE_AUTH_CLIENT_ID: str(),
-  GOOGLE_AUTH_CLIENT_SECRET: str()
 });

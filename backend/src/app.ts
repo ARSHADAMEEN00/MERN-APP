@@ -26,7 +26,7 @@ app.use(session({
   })
 }))
 
-const allowedOrigins = ['http://localhost:3001', 'https://dailynotes-netlify.com'];
+const allowedOrigins = ['http://localhost:3001', 'https://osperb-notes.netlify.app'];
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
