@@ -6,11 +6,12 @@ frontend deployed in netlify.com
 
 #frontend
 React
-    mui : (Material UI SAS) for UI and theme
-    axios : for the api call
-    typescript : code base
-    react-hook-form : for from controll
-    <img width="1440" alt="Screenshot 2023-05-01 at 5 43 36 PM" src="https://user-images.githubusercontent.com/87312860/235450155-5fe0b731-ea9b-4168-b52b-4241d38e9de6.png">
+    mui : (Material UI SAS) for UI and theme <br />
+    axios : for the api call <br />
+    typescript : code base <br />
+    react-hook-form : for from controll <br />
+   
+   <img width="1440" alt="Screenshot 2023-05-01 at 5 43 36 PM" src="https://user-images.githubusercontent.com/87312860/235450155-5fe0b731-ea9b-4168-b52b-4241d38e9de6.png">
 <img width="1440" alt="Screenshot 2023-05-01 at 5 42 10 PM" src="https://user-images.githubusercontent.com/87312860/235450174-9c5dde85-0ace-4f2c-9055-019139797769.png">
 <img width="1440" alt="Screenshot 2023-05-01 at 5 43 26 PM" src="https://user-images.githubusercontent.com/87312860/235450192-cd5d63df-9898-45b9-b9e2-f0e0fd7a92c4.png">
 
