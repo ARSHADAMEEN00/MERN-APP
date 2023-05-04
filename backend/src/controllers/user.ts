@@ -1,12 +1,28 @@
-import { RequestHandler } from "express";
+import { RequestHandler, } from "express";
 import createHttpError from "http-errors";
 import UserModel from "../models/user"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import env from "../util/validateEnv";
+
+// interface RequestData extends Request {
+//     user: User
+// }
+
+// declare module 'express-serve-static-core' {
+//     interface Request {
+//         user: {
+//             userId:string
+//         }
+//     }
+// }
+
 
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+    const userId = req.body.userId
     try {
-        const user = await UserModel.findById(req.session.userId).select("-password").exec();
+        const user = await UserModel.findById(userId).select("-password").exec();
         res.status(200).json(user)
 
     } catch (error) {
@@ -41,18 +57,23 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
             throw createHttpError(409, "A user with this email address already exists. Please log in instead.");
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        await bcrypt.hash(password, 10)
 
         const newUser = await UserModel.create({
             email,
             username,
-            password: hashedPassword
         })
 
-        req.session.userId = newUser?._id
-        res.setHeader('set-cookie', `session_id=${req.session.id}; HttpOnly; SameSite=Strict`);
-        res.status(201).json(newUser)
+        const token = jwt.sign({ userId: newUser?._id }, env.JWT_KEY)
 
+        const userWithToken = {
+            user: newUser,
+            token
+        }
+
+        // req.session.userId = newUser?._id
+        // res.setHeader('set-cookie', `session_id=${req.session.id}; HttpOnly; SameSite=Strict`);
+        res.status(201).json(userWithToken)
     } catch (error) {
         next(error)
     }
@@ -85,10 +106,18 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
             throw createHttpError(400, "Password Not Match");
         }
 
-        req.session.userId = user?._id
+        const token = jwt.sign({ userId: user && user?._id }, env.JWT_KEY)
 
-        res.status(201).json(user)
+        user['password'] = ''
 
+        if (token) {
+            const newUser = {
+                user,
+                token
+            }
+            req.session.userId = user?._id
+            res.status(201).json(newUser)
+        }
     } catch (error) {
         next(error)
     }

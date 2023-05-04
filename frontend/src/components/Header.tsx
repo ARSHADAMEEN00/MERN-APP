@@ -17,11 +17,12 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import { Context, ContextType } from 'util/provider';
+import { debounce } from '@mui/material';
 
 export default function Header() {
     const navigate = useNavigate()
 
-    const { user } = React.useContext(Context) as ContextType;
+    const { user, setSearchNote } = React.useContext(Context) as ContextType;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -122,6 +123,8 @@ export default function Header() {
         </Menu>
     );
 
+    const debounceProductSearch = debounce((value: string) => setSearchNote(value), 600)
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -158,6 +161,7 @@ export default function Header() {
                         <StyledInputBase
                             placeholder="Search…"
                             inputProps={{ 'aria-label': 'search' }}
+                            onChange={(e) => debounceProductSearch(e.target.value)}
                         />
                     </Search>
                     <Box sx={{ flexGrow: 1 }} />

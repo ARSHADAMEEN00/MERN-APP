@@ -2,15 +2,18 @@ import { InferSchemaType, Schema, model } from "mongoose";
 
 const noteSchema = new Schema(
   {
-    // userId: {
-    //   type: Schema.Types.ObjectId,
-    //   required: true,
-    // },
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
     },
     text: { type: String },
+    letterCount: { type: Number },
+    isSaved: { type: Boolean },
+    isArchived: { type: Boolean },
   },
   { timestamps: true }
 );

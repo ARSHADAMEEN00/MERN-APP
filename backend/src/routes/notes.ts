@@ -3,7 +3,7 @@ import * as NotesController from "../controllers/notes";
 
 const router = express.Router();
 
-router.get("/", NotesController.getNotes);
+router.get("/:type", NotesController.getNotes);
 router.get("/:noteId", NotesController.getNote);
 router.post("/", NotesController.createNote);
 router.put("/:noteId", NotesController.updateNote);

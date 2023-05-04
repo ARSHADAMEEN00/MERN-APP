@@ -4,6 +4,8 @@ import FormModel from "../models/form"
 
 export const getFormData: RequestHandler = async (req, res, next) => {
     const search = req.query.search;
+    const page = req.query.page
+    const limit = req.query.limit || "10"
 
     const queryData: any = {
         $or: [
@@ -11,14 +13,14 @@ export const getFormData: RequestHandler = async (req, res, next) => {
             { dob: { $regex: search ? search : "", $options: "i" } }
         ]
     }
+    console.log("data :", req.query)
 
     // if (req.query.sort === 'male') {
     //     queryData["gender"] = 'male';
     // }
 
     try {
-        console.log("queryData :", queryData)
-        const formData = await FormModel.find(queryData).sort({ name: 1 });
+        const formData = await FormModel.find(queryData).sort({ name: 1 }).limit(Number(limit)).skip((Number(page ? page : 1) - 1) * Number(limit))
         res.status(200).json(formData)
 
     } catch (error) {

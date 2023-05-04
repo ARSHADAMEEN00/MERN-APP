@@ -10,7 +10,7 @@ import cors from 'cors';
 import session from "express-session";
 import env from "./util/validateEnv";
 import MongoStore from "connect-mongo";
-import { requiresAuth } from "./middleware/auth";
+import { authenticateUser } from "./middleware/auth";
 
 const app = express();
 
@@ -44,7 +44,7 @@ app.use(express.json());
 
 app.use("/api/users", userRoutes);
 app.use("/api/form", formRoutes);
-app.use("/api/notes", requiresAuth, noteRoutes);
+app.use("/api/notes", authenticateUser, noteRoutes);
 
 app.use((req, res, next) => {
   next(

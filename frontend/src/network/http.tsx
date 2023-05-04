@@ -1,11 +1,11 @@
 import axios from "axios"
 
 // const API_URL_PROD = ""
-// const API_URL_DEV = "http://127.0.0.1:8000"
+const API_URL_DEV = "http://localhost:8000"
 const API_URL_PRO = "https://dailynotes-giu6.onrender.com"
 
 
-export const API_URL = API_URL_PRO
+export const API_URL = API_URL_DEV
 
 export const axiosApi = axios.create({
     baseURL: API_URL,
@@ -14,10 +14,19 @@ export const axiosApi = axios.create({
 
 axiosApi.interceptors.request.use(
     function (config) {
+        const token = sessionStorage.getItem("token")
+
+        if (token) {
+            config.headers["Authorization"] =
+                "Bearer " + sessionStorage.getItem("token")
+        }
         return config
     },
-    function (error) { }
+    function (error) {
+        return error
+    }
 )
+
 
 axiosApi.interceptors.response.use(
     response => {

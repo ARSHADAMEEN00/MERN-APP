@@ -32,6 +32,7 @@ export default function Logout() {
             try {
                 await Api.logout()
                 navigate('/login')
+                sessionStorage.clear()
             } catch (error) {
                 alert(error);
             }

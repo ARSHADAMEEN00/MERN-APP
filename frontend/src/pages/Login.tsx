@@ -22,7 +22,7 @@ function Copyright(props: any) {
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
             <Link color="inherit" href="#">
-                osperbnotes
+                osperb notes
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -48,14 +48,12 @@ export default function SignIn() {
 
         try {
             const user = await Api.login(credentials)
-            if (user?._id) {
-                const user2 = await Api.getLoggedInUser()
-                console.log("usrdd :", user2)
+            if (user?.token) {
+                sessionStorage.setItem("token", user?.token)
+                setUser(user?.user)
+                // alert('success'); notification
+                navigate('/')
             }
-
-            setUser(user)
-            // alert('success');
-            navigate('/')
         } catch (error) {
             alert(error);
         }

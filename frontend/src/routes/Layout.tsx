@@ -6,8 +6,9 @@ import { Context, ContextType } from "util/provider";
 
 export const PrivateLayout = () => {
   const { user } = useContext(Context) as ContextType;
+  const token = sessionStorage.getItem("token")
 
-  if (user?._id) {
+  if (token || user?._id) {
     return <>
       <Header />
       <Outlet />

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Note } from 'models/note';
-import { User } from 'models/user';
+import { User, } from 'models/user';
 
 export type ContextType = {
     notes: Note[],
@@ -12,6 +12,8 @@ export type ContextType = {
     setUser: (user: User) => void,
     setChangeMobileNav: (tab: string) => void,
     mobileNav: string
+    setSearchNote: (tab: string) => void,
+    searchNote: string
 }
 
 interface IProps {
@@ -24,6 +26,8 @@ const DataProvider = ({ children }: IProps) => {
     const [notes, setNotes] = React.useState<Note[]>([]);
     const [user, setUser] = React.useState<User>();
     const [mobileNav, setChangeMobileNav] = React.useState<string>('recent');
+    const [searchNote, setSearchNote] = React.useState<string>('');
+
 
     const saveNote = (notes: Note[]) => {
         setNotes(notes);
@@ -45,8 +49,9 @@ const DataProvider = ({ children }: IProps) => {
     }
 
 
+    const contextValue = { notes, saveNote, addToNote, updateNote, deleteNote, setUser, user, setChangeMobileNav, mobileNav, setSearchNote, searchNote }
 
-    return <Context.Provider value={{ notes, saveNote, addToNote, updateNote, deleteNote, setUser, user, setChangeMobileNav, mobileNav }}>{children}</Context.Provider>;
+    return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
 export default DataProvider;

@@ -21,6 +21,7 @@ const style = {
 type Inputs = {
     title: string,
     text: string,
+    letterCount: number
 };
 
 interface props {
@@ -45,7 +46,7 @@ const NoteDialog = ({ noteToEdit, open, handleClose }: props) => {
     const onSubmit: SubmitHandler<Inputs> = async value => {
         if (noteToEdit?._id) {
             try {
-                const note = await NoteApi.updateNote(noteToEdit?._id, value)
+                const note = await NoteApi.updateNote(noteToEdit?._id, { ...value, letterCount: value?.text?.length ? value?.text?.length : 0 })
                 if (note?._id) {
                     updateNote(note)
                     reset()
@@ -57,7 +58,7 @@ const NoteDialog = ({ noteToEdit, open, handleClose }: props) => {
             }
         } else
             try {
-                const note = await NoteApi.createNote(value)
+                const note = await NoteApi.createNote({ ...value, letterCount: value?.text?.length ? value?.text?.length : 0 })
                 if (note?._id) {
                     addToNote(note)
                     reset()

@@ -21,7 +21,9 @@ interface state {
 }
 
 function Notes() {
-    const { notes, saveNote, user } = React.useContext(Context) as ContextType;
+    const { notes, saveNote, user, searchNote } = React.useContext(Context) as ContextType;
+
+    const token = sessionStorage.getItem("token")
 
     const [noteDialog, setNoteDialog] = React.useState<state>({
         status: false,
@@ -44,12 +46,15 @@ function Notes() {
     const [notesLoading, setNotesLoading] = React.useState(true);
     const [showNotesLoadingError, setShowNotesLoadingError] = React.useState(false)
 
+    console.log("data :", searchNote)
+
     React.useEffect(() => {
         async function loadNotes() {
             try {
                 setNotesLoading(true)
                 setShowNotesLoadingError(false)
-                const notes = await NoteApi.fetchNotes()
+                const notes = await NoteApi.fetchNotes({ limit: 5, page: 1, search: searchNote })
+
                 saveNote(notes);
             } catch (error) {
                 console.error(error);
@@ -60,7 +65,7 @@ function Notes() {
         };
         loadNotes();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [searchNote])
 
     const [open, setOpen] = React.useState(false);
 
@@ -71,7 +76,7 @@ function Notes() {
 
     return (
         <React.Fragment>
-            {user ?
+            {token || user?._id ?
                 <Box sx={{ height: '85vh', bgcolor: '#cfe8fc', overflowY: "scroll", }}>
                     {showNotesLoadingError && <SnackbarComp
                         isStatic={true}
@@ -118,8 +123,6 @@ function Notes() {
                             <NoteDialog noteToEdit={noteDialog.data} open={noteDialog.status} handleClose={handleClose} />
                         </Box>
                     }
-
-
                 </Box> :
                 <Box sx={{ height: '85vh', width: "100%", flexDirection: { lg: "row", md: 'column', sm: "column", xs: 'column', }, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Box sx={{ marginLeft: { xs: '40px' } }}>

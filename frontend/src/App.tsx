@@ -18,6 +18,8 @@ function App() {
   const { width } = useWindowSize()
   const { setUser } = React.useContext(Context) as ContextType;
 
+  const token = sessionStorage.getItem("token")
+
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -27,8 +29,10 @@ function App() {
         console.log(error)
       }
     }
-    fetchLoggedInUser()
-  }, [setUser])
+    if (token) {
+      fetchLoggedInUser()
+    }
+  }, [setUser, token])
 
 
   return (
