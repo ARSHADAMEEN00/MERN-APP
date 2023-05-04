@@ -48,7 +48,7 @@ interface requestBody {
 
 //notes
 export async function fetchNotes({ limit, page, search }: requestBody): Promise<Note[]> {
-    const response = await http.get(`/api/notes?page=${page ? page : 1}&limit=${limit ? limit : 10}&search=${search ? search : ""}`)
+    const response = await http.get(`/api/notes/all?page=${page ? page : 1}&limit=${limit ? limit : 10}&search=${search ? search : ""}`)
     return response
 }
 
