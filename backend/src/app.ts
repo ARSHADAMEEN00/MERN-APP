@@ -1,16 +1,22 @@
-import "dotenv/config";
-import express, { NextFunction, Request, Response } from "express";
+import "dotenv/config"; //to access env 
+import express from "express";
 import noteRoutes from "./routes/notes";
 import userRoutes from "./routes/user";
+import authRoutes from "./routes/auth";
 import formRoutes from "./routes/form";
+import * as staticRoutes from "./routes/root";
 
 import morgan from "morgan";
-import createHttpError, { isHttpError } from "http-errors";
+import createHttpError from "http-errors";
 import cors from 'cors';
 import session from "express-session";
 import env from "./util/validateEnv";
 import MongoStore from "connect-mongo";
-import { authenticateUser } from "./middleware/auth";
+import { authenticateUser } from "./middleware/verifyAuth";
+import { logger } from "./middleware/logger";
+import { errorHandler } from "./middleware/errorHandler";
+import { corsOptions } from "./config/corsOption";
+import { isAdminProtected } from "./middleware/adminProtected";
 
 const app = express();
 
@@ -27,24 +33,22 @@ app.use(session({
   })
 }))
 
-const allowedOrigins = ['http://localhost:3001', 'https://osperb-notes.netlify.app'];
-
-const options: cors.CorsOptions = {
-  origin: allowedOrigins,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-};
-
-app.use(cors(options));
-
-app.use(cors());
-
+app.use(logger)
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
-
 app.use(express.json());
 
-app.use("/api/users", userRoutes);
+app.use("/api/user", authRoutes);
 app.use("/api/form", formRoutes);
 app.use("/api/notes", authenticateUser, noteRoutes);
+app.use("/api/admin/user", authenticateUser, isAdminProtected, userRoutes);
+
+//load html in backend 
+// app.use(express.static("static"))
+// app.use('/static', express.static(path.join(__dirname, "static")))
+
+app.use('/static', staticRoutes.default)
+app.all("*", staticRoutes.notFound)
 
 app.use((req, res, next) => {
   next(
@@ -52,16 +56,6 @@ app.use((req, res, next) => {
   );
 });
 
-app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
-  let errorMessage = "An unknown error occurred";
-  let statusCode = 500;
-
-  if (isHttpError(error)) {
-    statusCode = error.status;
-    errorMessage = error.message;
-  }
-  // if (error instanceof Error) errorMessage = error.message;
-  res.status(statusCode).json({ error: errorMessage });
-});
+app.use(errorHandler)
 
 export default app;

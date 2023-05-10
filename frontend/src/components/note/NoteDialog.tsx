@@ -12,11 +12,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { Context, ContextType } from 'util/provider';
 import { Note } from 'models/note';
+import { useWindowSize } from 'react-use';
 
-const style = {
-    width: 500,
-    margin: "auto"
-};
+
 
 type Inputs = {
     title: string,
@@ -32,6 +30,7 @@ interface props {
 
 const NoteDialog = ({ noteToEdit, open, handleClose }: props) => {
     const { addToNote, updateNote } = React.useContext(Context) as ContextType;
+    const { width } = useWindowSize()
 
     const { register, handleSubmit, reset, formState: {
         // errors,
@@ -42,6 +41,12 @@ const NoteDialog = ({ noteToEdit, open, handleClose }: props) => {
             title: noteToEdit?.title as string || ""
         }
     });
+
+
+    const style = {
+        width: width > 480 ? 500 : "auto",
+        margin: "auto"
+    };
 
     const onSubmit: SubmitHandler<Inputs> = async value => {
         if (noteToEdit?._id) {

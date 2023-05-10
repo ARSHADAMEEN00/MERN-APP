@@ -1,3 +1,68 @@
+/* //tinder card  */
+.tinderCard {
+  position: relative;
+  background-color: #fff;
+  width: 600px;
+  padding: 20px;
+  max-width: 85vw;
+  height: 50vh;
+  box-shadow: 0px 18px 53px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.tinderCard h3 {
+  position: absolute;
+  bottom: 0;
+  margin: 10px;
+  color: #55a463;
+}
+.main_wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 90vh;
+}
+
+.tinderCards_cardContainer {
+  display: flex;
+  justify-content: center;
+  /* margin-top: 10vh; */
+}
+.swipe {
+  position: absolute;
+  top: 10rem;
+}
+.swipeButtons {
+  /* position: fixed;
+  bottom: 10vh;
+  right: 0;
+  max-width: 900px;
+  margin: auto;
+  width: 100%; */
+  /* display: flex; */
+  /* justify-content: space-evenly; */
+}
+.swipeButtons .swipeButton {
+  background-color: white;
+  box-shadow: 0px 10px 53px 0px rgba(0, 0, 0, 0.3) !important;
+}
+
+.swipeButton.repeat {
+  color: #f5b748 !important;
+}
+.swipeButton.close {
+  color: rgb(206, 124, 124) !important;
+}
+.swipeButton.flashOn {
+  color: rgb(53, 85, 53) !important;
+}
+.swipeButton.star {
+  color: #62b4f9 !important;
+}
+
 @media screen and (max-width: 768px) {
   .sm\:p-0 {
     padding: 0 !important;

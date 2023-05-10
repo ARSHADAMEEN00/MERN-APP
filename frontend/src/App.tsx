@@ -11,6 +11,7 @@ import Register from 'pages/Register';
 import Logout from 'pages/Logout';
 import * as NoteApi from "network/api_helper"
 import { Context, ContextType } from 'util/provider';
+import TinderChat from 'pages/TinderChat';
 
 const Notes = React.lazy(() => import('pages/Notes'));
 
@@ -47,6 +48,14 @@ function App() {
               </React.Suspense>
             } />
           </Route>
+
+
+          <Route path="/tinderChat" element={
+            <React.Suspense fallback={<CardLoading count={4} />}>
+              <TinderChat />
+            </React.Suspense>
+          } />
+
           <Route element={<PublicLayout />}>
             <Route path="/login" element={<SignIn />} />
             <Route path="/register" element={<Register />} />

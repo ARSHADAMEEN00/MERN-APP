@@ -3,8 +3,8 @@ import Box from '@mui/material/Box';
 import EditIcon from '@mui/icons-material/Edit';
 import { Button, Fab, Typography, } from '@mui/material';
 
-import NoteCard from 'components/NoteCard';
-import NoteDialog from 'components/NoteDialog';
+import NoteCard from 'components/note/NoteCard';
+import NoteDialog from 'components/note/NoteDialog';
 import { Context, ContextType } from 'util/provider';
 import { Note } from 'models/note';
 
@@ -21,7 +21,7 @@ interface state {
 }
 
 function Notes() {
-    const { notes, saveNote, user, searchNote } = React.useContext(Context) as ContextType;
+    const { notes, saveNote, user, searchNote, mobileNav } = React.useContext(Context) as ContextType;
 
     const token = sessionStorage.getItem("token")
 
@@ -53,7 +53,7 @@ function Notes() {
             try {
                 setNotesLoading(true)
                 setShowNotesLoadingError(false)
-                const notes = await NoteApi.fetchNotes({ limit: 5, page: 1, search: searchNote })
+                const notes = await NoteApi.fetchNotes({ limit: 5, page: 1, search: searchNote, sort: mobileNav })
 
                 saveNote(notes);
             } catch (error) {
@@ -77,7 +77,7 @@ function Notes() {
     return (
         <React.Fragment>
             {token || user?._id ?
-                <Box sx={{ height: '85vh', bgcolor: '#cfe8fc', overflowY: "scroll", }}>
+                <Box sx={{ height: '85vh', bgcolor: '#cfe8fc', overflowY: "scroll", '&::-webkit-scrollbar': { display: "none" } }}  >
                     {showNotesLoadingError && <SnackbarComp
                         isStatic={true}
                         open={open}

@@ -1,4 +1,4 @@
-import { Document, InferSchemaType, Schema, model } from "mongoose";
+import { InferSchemaType, Schema, model } from "mongoose";
 
 // export type UserDocument = Document & {
 //   username: string;
@@ -23,6 +23,14 @@ const userSchema = new Schema(
     googleId: {
       type: String
     },
+    roles: [{
+      type: String,
+      default: "employee"
+    }],
+    isActive: {
+      type: Boolean,
+      default: true
+    }
   }
 );
 

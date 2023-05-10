@@ -9,7 +9,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Context, ContextType } from 'util/provider';
 
 export default function Footer() {
-    const { setChangeMobileNav, mobileNav } = React.useContext(Context) as ContextType;
+    const { setChangeMobileNav, mobileNav, } = React.useContext(Context) as ContextType;
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setChangeMobileNav(newValue);
@@ -30,7 +30,7 @@ export default function Footer() {
                 />
                 <BottomNavigationAction
                     label="Archived"
-                    value="nearby"
+                    value="archived"
                     icon={<ArchiveIcon />}
                 />
                 <BottomNavigationAction label="Saved" value="folder" icon={<SaveIcon />} />

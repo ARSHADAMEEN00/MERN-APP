@@ -1,15 +1,20 @@
 import app from "./app";
 import mongoose from "mongoose";
 import env from "./util/validateEnv";
+import { dbConnection } from "./config/dbConnection";
+import { logEvents } from "./middleware/logger";
 
 const port = env.PORT;
 
-mongoose
-  .connect(env.MONGO_CONNECTION_STRING)
-  .then(() => {
-    console.log("mongoose connection");
-    app.listen(port, () => {
-      console.log("Server running " + port);
-    });
-  })
-  .catch(console.error);
+dbConnection()
+
+mongoose.connection.once('open', () => {
+  app.listen(port, () => {
+    console.log("Server running " + port);
+  });
+})
+
+mongoose.connection.on('error', error => {
+  console.log("error", error)
+  logEvents(`${error.no}: ${error.code}\t${error.syscall}\t${error.hostname}`, "mongoErrLog.log")
+})

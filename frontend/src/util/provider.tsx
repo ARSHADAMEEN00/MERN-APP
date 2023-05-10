@@ -14,6 +14,7 @@ export type ContextType = {
     mobileNav: string
     setSearchNote: (tab: string) => void,
     searchNote: string
+
 }
 
 interface IProps {
@@ -49,7 +50,7 @@ const DataProvider = ({ children }: IProps) => {
     }
 
 
-    const contextValue = { notes, saveNote, addToNote, updateNote, deleteNote, setUser, user, setChangeMobileNav, mobileNav, setSearchNote, searchNote }
+    const contextValue = { notes, saveNote, addToNote, updateNote, deleteNote, setUser, user, setChangeMobileNav, mobileNav, setSearchNote, searchNote, }
 
     return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };

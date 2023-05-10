@@ -16,7 +16,7 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 
 //user
 export async function getLoggedInUser(): Promise<User> {
-    const response = await http.get('/api/users')
+    const response = await http.get('/api/user/profile')
     return response
 }
 
@@ -25,7 +25,7 @@ export interface SignUpCredentials {
 }
 
 export async function signUp(credentials: SignUpCredentials): Promise<UserModel> {
-    const response = await http.post('/api/users/signup', credentials,)
+    const response = await http.post('/api/user/signup', credentials,)
     return response
 }
 
@@ -34,27 +34,35 @@ export interface LoginCredentials {
 }
 
 export async function login(credentials: LoginCredentials): Promise<UserModel> {
-    const response = await http.post("/api/users/login", credentials)
+    const response = await http.post("/api/user/login", credentials)
     return response
 }
 
 export async function logout() {
-    await fetchData("/api/users/logout", { method: "POST" });
+    await fetchData("/api/user/logout", { method: "POST" });
 }
 
 interface requestBody {
-    limit: number, page: number, search: string
+    limit: number, page: number, search: string,
+    sort: string
 }
 
 //notes
-export async function fetchNotes({ limit, page, search }: requestBody): Promise<Note[]> {
-    const response = await http.get(`/api/notes/all?page=${page ? page : 1}&limit=${limit ? limit : 10}&search=${search ? search : ""}`)
+export async function fetchNotes({ limit, page, search, sort }: requestBody): Promise<Note[]> {
+    const response = await http.get(`/api/notes/${sort}?page=${page ? page : 1}&limit=${limit ? limit : 10}&search=${search ? search : ""}`)
     return response
 }
 
 export interface NoteInput {
-    title: string, text?: string,
-    letterCount: number
+    title: String,
+    text?: String,
+    letterCount?: Number,
+    isSaved?: Boolean,
+    isArchived?: Boolean,
+    // createdAt?: Date,
+    // updatedAt?: Date,
+    // __v?: number,
+    // _id?: string
 }
 
 

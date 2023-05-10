@@ -1,11 +1,11 @@
 import axios from "axios"
 
 // const API_URL_PROD = ""
-// const API_URL_DEV = "http://localhost:8000"
-const API_URL_PRO = "https://dailynotes-giu6.onrender.com"
+const API_URL_DEV = "http://localhost:8000"
+// const API_URL_DEV = "https://dailynotes-giu6.onrender.com"
 
 
-export const API_URL = API_URL_PRO
+export const API_URL = API_URL_DEV
 
 export const axiosApi = axios.create({
     baseURL: API_URL,

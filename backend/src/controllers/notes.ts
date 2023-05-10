@@ -1,12 +1,12 @@
 import { RequestHandler } from "express";
 import NoteModel from "../models/note";
 import createHttpError from "http-errors";
-import mongoose from "mongoose";
+import mongoose, { QueryOptions } from "mongoose";
 // import { assertsIsDefined } from "../util/assertsIsDefined";
 
 
 export const getNotes: RequestHandler = async (req, res, next) => {
-  const userId = req.body.userId;
+  const { userId } = req.body.UserInfo
   const page = req.query.page
   const search = req.query.search
   const limit = req.query.limit || '10'
@@ -14,12 +14,11 @@ export const getNotes: RequestHandler = async (req, res, next) => {
   const minCount = req.query.minCount
   const type = req.params.type
 
-  const d = new Date()
+  // const d = new Date()
   // const from = req.query.from
   // const to = req.query.to
 
-
-  const queryData: any = {
+  const queryData: QueryOptions = {
     $or: [
       { title: { $regex: search ? search : "", $options: "i" } },
     ]
@@ -30,6 +29,7 @@ export const getNotes: RequestHandler = async (req, res, next) => {
     // letterCount: { '$gt': minCount, '$lt': maxCount },
     // $or: [{ letterCount: { $gt: minCount ? minCount : 0 } }, { letterCount: { $in: [12, 37] } }]
   }
+
   if (userId) {
     queryData["userId"] = userId;
   }
@@ -46,20 +46,21 @@ export const getNotes: RequestHandler = async (req, res, next) => {
     queryData['letterCount'] = { '$gte': minCount, '$lte': maxCount }
   }
 
-  // if (type === 'recent') {
-  //   queryData['createdAt'] = { "$lt": new Date(), $gt: new Date(d.getFullYear() + ',' + d.getMonth() + ',' + d.getDate()) }
-  // }
+  if (type === "favorites") {
+    queryData["isSaved"] = true;
+  }
 
-  // created: { $lt: new Date(), $gt: new Date(year+','+month+','+day) }
+  if (type === "archived") {
+    queryData["isArchived"] = true;
+  }
 
   try {
     // assertsIsDefined(authenticatedUserId)
     const notes = await NoteModel.find(queryData).sort({ title: 1 }).limit(Number(limit)).skip((Number(page ? page : 1) - 1) * Number(limit)).exec();
 
     if (type === 'recent') {
-      // NoteModel.aggregate(['createdAt':{'$gte':  d.setDate(d.getDate() - 1), '$lte':  new Date() }])
+      NoteModel.find(queryData).sort({ createdAt: -1 }).limit(Number(limit)).skip((Number(page ? page : 1) - 1) * Number(limit)).exec()
     }
-
 
     // const notes = await NoteModel.find().exec();
     res.status(200).json(notes);
@@ -72,7 +73,7 @@ export const getNotes: RequestHandler = async (req, res, next) => {
 
 export const getNote: RequestHandler = async (req, res, next) => {
   const noteId = req.params.noteId;
-  const userId = req.body.userId;
+  const { userId } = req.body.UserInfo
 
   try {
     // assertsIsDefined(authenticatedUserId)
@@ -102,19 +103,22 @@ export const getNote: RequestHandler = async (req, res, next) => {
   }
 };
 
-interface CreateNoteBody {
+interface NoteBody {
   title?: string;
   text?: string;
-  letterCount?: number;
-  userId: string
+  UserInfo: never
+  letterCount?: number
+  isArchived?: boolean
+  isSaved?: boolean
 }
 
-export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknown> = async (req, res, next) => {
+export const createNote: RequestHandler<unknown, unknown, NoteBody, unknown> = async (req, res, next) => {
   const title = req.body.title;
   const text = req.body.text;
   const letterCount = req.body.letterCount;
 
-  const userId = req.body.userId;
+  const { userId } = req.body.UserInfo
+
 
   try {
     // assertsIsDefined(authenticatedUserId)
@@ -126,7 +130,7 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
       userId,
       title,
       text,
-      letterCount
+      letterCount,
     });
     res.status(201).json(newNotes);
   } catch (error) {
@@ -135,22 +139,20 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
   }
 };
 
-interface UpdateNoteBody {
-  title?: string;
-  text?: string;
-  userId: string
-  letterCount?: number
-}
+
 interface UpdateNoteParams {
   noteId: string;
 }
 
-export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBody, unknown> = async (req, res, next) => {
+export const updateNote: RequestHandler<UpdateNoteParams, unknown, NoteBody, unknown> = async (req, res, next) => {
   const newTitle = req.body.title;
   const newText = req.body.text;
   const newLetterCount = req.body.letterCount;
+  const isArchived = req.body.isArchived;
+  const isSaved = req.body.isSaved;
+  const { userId } = req.body.UserInfo
+
   const noteId = req.params.noteId;
-  const userId = req.body.userId;
 
   try {
     // assertsIsDefined(authenticatedUserId)
@@ -179,7 +181,10 @@ export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBod
 
     note.title = newTitle;
     note.text = newText;
-    note.letterCount = newLetterCount;
+    note.letterCount = newLetterCount ? newLetterCount : note.letterCount;
+    note.isArchived = isArchived ? isArchived : false;
+    note.isSaved = isSaved ? isSaved : false;
+
 
     const updateNote = await note.save();
 
@@ -211,7 +216,8 @@ export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBod
 
 export const deleteNote: RequestHandler = async (req, res, next) => {
   const noteId = req.params.noteId;
-  const userId = req.body.userId;
+  const { userId } = req.body.UserInfo
+
 
   // const authenticatedUserId = req.session.userId;
 

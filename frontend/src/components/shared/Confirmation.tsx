@@ -3,9 +3,10 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconBut
 
 interface dialogProp {
     message: string, title: string, open: boolean, onClose: () => void,
+    onConfirm: () => void,
 }
 
-const ConfirmDialog = ({ message, title, open, onClose }: dialogProp) => {
+const ConfirmDialog = ({ message, title, open, onClose, onConfirm }: dialogProp) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>{title}</DialogTitle>
@@ -21,7 +22,7 @@ const ConfirmDialog = ({ message, title, open, onClose }: dialogProp) => {
                 <Button onClick={onClose} color="primary" variant="contained">
                     Cancel
                 </Button>
-                <Button color="secondary" variant="contained">
+                <Button color="secondary" onClick={onConfirm} variant="contained">
                     Confirm
                 </Button>
             </DialogActions>

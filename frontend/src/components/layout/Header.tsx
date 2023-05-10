@@ -12,12 +12,12 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import { Context, ContextType } from 'util/provider';
 import { debounce } from '@mui/material';
+import MarkChatReadIcon from '@mui/icons-material/MarkChatRead';
 
 export default function Header() {
     const navigate = useNavigate()
@@ -91,10 +91,10 @@ export default function Header() {
             <MenuItem>
                 <IconButton size="large" aria-label="show 4 new mails" color="inherit">
                     <Badge badgeContent={4} color="error">
-                        <MailIcon />
+                        <MarkChatReadIcon />
                     </Badge>
                 </IconButton>
-                <p>Messages</p>
+                <p>TinderChat</p>
             </MenuItem>
             <MenuItem>
                 <IconButton
@@ -171,9 +171,9 @@ export default function Header() {
                                 {user?.username}
                             </Typography>
                         </IconButton>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                        <IconButton onClick={() => navigate('/tinderChat')} size="large" aria-label="show 4 new mails" color="inherit">
                             <Badge badgeContent={4} color="error">
-                                <MailIcon />
+                                <MarkChatReadIcon />
                             </Badge>
                         </IconButton>
                         <IconButton

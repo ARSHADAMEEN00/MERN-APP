@@ -1,135 +1,204 @@
 import { RequestHandler, } from "express";
 import createHttpError from "http-errors";
 import UserModel from "../models/user"
+import NoteModel from "../models/note"
+import asyncHandler from "express-async-handler";
+import mongoose, { QueryOptions } from "mongoose";
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import env from "../util/validateEnv";
 
-// interface RequestData extends Request {
-//     user: User
-// }
+// get all user by admin
+export const getAllUsers: RequestHandler = asyncHandler(async (req, res, next) => {
+    const page = req.query.page
+    const search = req.query.search
+    const limit = req.query.limit || '10'
+    const sort = req.query.sort
+    const type = req.params.type
 
-// declare module 'express-serve-static-core' {
-//     interface Request {
-//         user: {
-//             userId:string
-//         }
-//     }
-// }
+    const queryData: QueryOptions = {
+        $or: [
+            { username: { $regex: search ? search : "", $options: "i" } },
+            { email: { $regex: search ? search : "", $options: "i" } },
+        ],
 
-
-
-export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-    const userId = req.body.userId
-    try {
-        const user = await UserModel.findById(userId).select("-password").exec();
-        res.status(200).json(user)
-
-    } catch (error) {
-        next(error)
     }
-}
 
+    if (type === "active") {
+        queryData["isActive"] = true;
+    }
+
+    if (sort) {
+        queryData["roles"] = sort
+    }
+
+    try {
+        const user = await UserModel.find(queryData).sort({ createdAt: -1 }).select("-password").limit(Number(limit)).skip((Number(page ? page : 1) - 1) * Number(limit)).exec();
+        if (!user?.length) {
+            throw createHttpError(404, "User Not Found");
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
+
+export const getUserDetails: RequestHandler = asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId
+    try {
+        const notes = await UserModel.find({ _id: userId }).exec();
+        res.status(200).json(notes);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
 
 interface SignUpBody {
     username?: string,
     password?: string,
-    email?: string
+    email?: string,
+    userId?: string
+    roles: Array<string>
 }
 
-export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = async (req, res, next) => {
-    const username = req.body.username
-    const password = req.body.password
-    const email = req.body.email
+export const createUser: RequestHandler<unknown, unknown, SignUpBody, unknown> = asyncHandler(async (req, res, next) => {
+    const { username, password, email, roles } = req.body
 
     try {
+
         if (!username || !email || !password) {
             throw createHttpError(400, "Parameters missing");
         }
 
-        const existingUsername = await UserModel.findOne({ username: username }).exec();
+        if (!Array.isArray(roles) || !roles.length) {
+            throw createHttpError(404, "Please  Select a role, role is required for a user");
+        }
+
+        const existingUsername = await UserModel.findOne({ username: username }).lean().exec();
         if (existingUsername) {
             throw createHttpError(409, "Username already taken. Please choose a different one or log in instead.");
         }
 
-        const existingEmail = await UserModel.findOne({ email: email }).exec();
+        const existingEmail = await UserModel.findOne({ email: email }).lean().exec();
         if (existingEmail) {
             throw createHttpError(409, "A user with this email address already exists. Please log in instead.");
         }
 
-        await bcrypt.hash(password, 10)
+        const hashedPass = await bcrypt.hash(password, 10) //hash password
 
         const newUser = await UserModel.create({
             email,
             username,
+            password: hashedPass,
+            roles
         })
 
-        const token = jwt.sign({ userId: newUser?._id }, env.JWT_KEY)
-
-        const userWithToken = {
-            user: newUser,
-            token
+        if (newUser) {
+            res.status(201).json(newUser)
+        } else {
+            throw createHttpError(400, 'Invalid user data received')
         }
-
-        // req.session.userId = newUser?._id
-        // res.setHeader('set-cookie', `session_id=${req.session.id}; HttpOnly; SameSite=Strict`);
-        res.status(201).json(userWithToken)
     } catch (error) {
         next(error)
     }
+});
 
-};
+interface UpdatedUserBody {
+    username?: string,
+    email?: string,
+    userId?: string
+    user?: any
+    roles?: Array<string>
+    isActive: boolean,
 
-interface LoginBody {
-    username: string,
-    password: string
+}
+interface UpdateUserParams {
+    userId: string;
 }
 
-export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async (req, res, next) => {
-    const username = req.body.username
-    const password = req.body.password
+//update user
+export const updateUser: RequestHandler<any, unknown, UpdatedUserBody, unknown> = asyncHandler(async (req, res, next) => {
+    const { username, email, roles, isActive } = req.body
+    const userId = req.params.userId;
 
     try {
-        if (!username || !password) {
+        if (!username || !email || !Array.isArray(roles) || !roles?.length || typeof isActive !== 'boolean') {
             throw createHttpError(400, "Parameters missing");
         }
 
-        const user = await UserModel.findOne({ username: username }).select("+password +email").exec()
+        if (!mongoose.isValidObjectId(userId)) {
+            throw createHttpError(400, "invalid note id");
+        }
+
+        const user = await UserModel.findById({ _id: userId }).exec()
+
+        const existingUsername = await UserModel.findOne({ username: username }).lean().exec();
+        if (existingUsername && existingUsername?._id.toString() !== userId) {
+            throw createHttpError(409, "Username already taken. Please choose a different one or log in instead.");
+        }
+
+        const existingEmail = await UserModel.findOne({ email: email }).lean().exec();
+        if (existingEmail && existingEmail?._id.toString() !== userId) {
+            throw createHttpError(409, "A user with this email address already exists. Please log in instead.");
+        }
 
         if (!user) {
-            throw createHttpError(401, "Invalid credentials");
+            throw createHttpError(404, "User not found");
         }
 
-        const passwordMatch = await bcrypt.compare(password, user.password)
+        user.username = username
+        user.email = email
+        user.roles = roles
+        user.isActive = isActive
 
-        if (!passwordMatch) {
-            throw createHttpError(400, "Password Not Match");
-        }
+        // const updatedUser = await UserModel.findByIdAndUpdate(
+        //     { _id: userId },
+        //     {
+        //         email,
+        //         username,
+        //         roles,
+        //         isActive
+        //     }
+        // );
 
-        const token = jwt.sign({ userId: user && user?._id }, env.JWT_KEY)
+        const updatedUser = await user.save();
 
-        user['password'] = ''
+        res.status(200).json(updatedUser);
 
-        if (token) {
-            const newUser = {
-                user,
-                token
-            }
-            req.session.userId = user?._id
-            res.status(201).json(newUser)
-        }
     } catch (error) {
         next(error)
     }
-}
+});
 
-export const logout: RequestHandler = async (req, res, next) => {
-    req.session.destroy(error => {
-        if (error) {
-            next(error)
-        } else {
-            res.sendStatus(200)
+//delete user
+export const deleteUser: RequestHandler = async (req, res, next) => {
+    const userId = req.params.userId
+    try {
+
+        if (!mongoose.isValidObjectId(userId)) {
+            throw createHttpError(400, "invalid note id");
         }
-    })
 
-}
+        const notes = await NoteModel.findOne({ userId: userId }).lean().exec()
+
+        if (notes) {
+            return res.status(400).json({ message: 'User has assigned notes ' })
+        }
+
+        const user = await UserModel.findByIdAndDelete(userId)
+
+        if (!user) {
+            throw createHttpError(404, "User not found");
+        }
+        // const result = await user.deleteOne()
+
+        res.status(204).json({
+            userId: userId,
+            message: "user deleted success"
+        })
+
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};
